@@ -4,7 +4,13 @@
  */
 package components;
 
-import config.Connection;
+import java.sql.Connection;
+import config.MysqlClient;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -13,7 +19,9 @@ import config.Connection;
 public class FormBuku extends javax.swing.JDialog {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormBuku.class.getName());
-
+    MysqlClient mysqlClient = new MysqlClient();
+    Connection connect = mysqlClient.createConnection();
+    
     /**
      * Creates new form FormBuku
      */
@@ -220,11 +228,11 @@ public class FormBuku extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ButtonCetak)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(InputCari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(ButtonCari)))
+                        .addComponent(ButtonCari))
+                    .addComponent(ButtonCetak))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
@@ -258,129 +266,130 @@ public class FormBuku extends javax.swing.JDialog {
     private void ButtonRefreshTabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonRefreshTabelActionPerformed
         // TODO add your handling code here:
 
-        try {
-            // Koneksi ke database
-            Connection koneksi = DriverManager.getConnection(mysqlUrl);
-
-            // Ambil model tabel yang sudah ada
-            DefaultTableModel table = (DefaultTableModel) TabelSuplier.getModel();
-
-            // Hapus semua baris lama
-            int row = table.getRowCount();
-            for (int i = 0; i < row; i++) {
-                table.removeRow(0);
-            }
-
-            // Ambil semua data dari tabelsuplire
-            String sql = "SELECT * FROM tabelsuplier";
-            Statement stmt = koneksi.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-
-            // Tambahkan ke JTable
-            while (rs.next()) {
-                String[] data = {
-                    rs.getString("KodeSuplier"),
-                    rs.getString("NamaSuplier"),
-                    rs.getString("Kontak"),
-                    rs.getString("Telpon"),
-                    rs.getString("Fax"),
-                    rs.getString("Alamat"),
-                };
-                table.addRow(data);
-            }
-
-            // Tutup koneksi
-            //            koneksi.close();
-
-            // Opsional: tampilkan pesan sukses
-            JOptionPane.showMessageDialog(rootPane, "Tabel berhasil diperbarui!");
-
-        } catch (SQLException error) {
-            JOptionPane.showMessageDialog(rootPane, "Gagal memuat data: " + error.getMessage());
-            System.out.println("Gagal memuat data: " + error.getMessage());
-        }
+//        try {
+//            // Koneksi ke database
+//            MysqlClient mysql = new MysqlClient();
+//            Connection connect = mysql.createConnection();
+//
+//            // Ambil model tabel yang sudah ada
+//            DefaultTableModel table = (DefaultTableModel) TabelSuplier.getModel();
+//
+//            // Hapus semua baris lama
+//            int row = table.getRowCount();
+//            for (int i = 0; i < row; i++) {
+//                table.removeRow(0);
+//            }
+//
+//            // Ambil semua data dari tabelsuplire
+//            String sql = "SELECT * FROM tabelsuplier";
+//            Statement stmt = koneksi.createStatement();
+//            ResultSet rs = stmt.executeQuery(sql);
+//
+//            // Tambahkan ke JTable
+//            while (rs.next()) {
+//                String[] data = {
+//                    rs.getString("KodeSuplier"),
+//                    rs.getString("NamaSuplier"),
+//                    rs.getString("Kontak"),
+//                    rs.getString("Telpon"),
+//                    rs.getString("Fax"),
+//                    rs.getString("Alamat"),
+//                };
+//                table.addRow(data);
+//            }
+//
+//            // Tutup koneksi
+//            //            koneksi.close();
+//
+//            // Opsional: tampilkan pesan sukses
+//            JOptionPane.showMessageDialog(rootPane, "Tabel berhasil diperbarui!");
+//
+//        } catch (SQLException error) {
+//            JOptionPane.showMessageDialog(rootPane, "Gagal memuat data: " + error.getMessage());
+//            System.out.println("Gagal memuat data: " + error.getMessage());
+//        }
     }//GEN-LAST:event_ButtonRefreshTabelActionPerformed
 
     private void ButtonCetakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCetakActionPerformed
         // TODO add your handling code here:
-        try {
-            File report = new File("./src/components/suplier/reportSuplier.jrxml");
-            JasperDesign JasDesign = JRXmlLoader.load(report);
-            parameter.clear();
-            JasReport = JasperCompileManager.compileReport(JasDesign);
-            JasPrint = JasperFillManager.fillReport(JasReport, parameter, con);
-            // Buat instance JasperViewer
-            JRViewer viewer = new JRViewer(JasPrint);
-
-            // Buat JFrame baru sebagai container
-            JFrame previewFrame = new JFrame("Preview Laporan");
-            previewFrame.getContentPane().add(viewer);
-            previewFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // full screen
-            previewFrame.setAlwaysOnTop(true); // pastikan di atas
-            previewFrame.setLocationRelativeTo(null); // tengah layar
-            previewFrame.setVisible(true);
-            previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        }catch(Exception error) {
-            JOptionPane.showMessageDialog(null,"Gagal print: " + error.getMessage());
-            System.out.println("Gagal print: " + error.getMessage());
-        }
+//        try {
+//            File report = new File("./src/components/suplier/reportSuplier.jrxml");
+//            JasperDesign JasDesign = JRXmlLoader.load(report);
+//            parameter.clear();
+//            JasReport = JasperCompileManager.compileReport(JasDesign);
+//            JasPrint = JasperFillManager.fillReport(JasReport, parameter, con);
+//            // Buat instance JasperViewer
+//            JRViewer viewer = new JRViewer(JasPrint);
+//
+//            // Buat JFrame baru sebagai container
+//            JFrame previewFrame = new JFrame("Preview Laporan");
+//            previewFrame.getContentPane().add(viewer);
+//            previewFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // full screen
+//            previewFrame.setAlwaysOnTop(true); // pastikan di atas
+//            previewFrame.setLocationRelativeTo(null); // tengah layar
+//            previewFrame.setVisible(true);
+//            previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//
+//        }catch(Exception error) {
+//            JOptionPane.showMessageDialog(null,"Gagal print: " + error.getMessage());
+//            System.out.println("Gagal print: " + error.getMessage());
+//        }
     }//GEN-LAST:event_ButtonCetakActionPerformed
 
     private void ButtonCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCariActionPerformed
         // TODO add your handling code here:
-        String searchInput = InputCari.getText().trim();
-
-        if (searchInput.equals("")) {
-            JOptionPane.showMessageDialog(null, "Masukkan keyword terlebih dahulu!");
-            InputCari.requestFocus();
-            return;
-        }
-
-        try {
-            int row = TabelSuplier.getRowCount();
-            for (int i = 0; i < row; i++) {
-                table.removeRow(0);
-            }
-
-            // Koneksi ke database
-            Connection koneksi = DriverManager.getConnection(
-                mysqlUrl
-            );
-
-            // Query pencarian
-            String query = "SELECT * FROM tabelsuplier WHERE KodeSuplier LIKE ? OR NamaSuplier LIKE ?";
-            PreparedStatement pst = koneksi.prepareStatement(query);
-            pst.setString(1, "%" + searchInput + "%");
-            pst.setString(2, "%" + searchInput + "%");
-
-            ResultSet rs = pst.executeQuery();
-
-            // Cek apakah data ditemukan
-            boolean found = false;
-            while (rs.next()) {
-                found = true;
-                String[] data = {
-                    rs.getString("KodeSuplier"),
-                    rs.getString("NamaSuplier"),
-                    rs.getString("Kontak"),
-                    rs.getString("Telpon"),
-                    rs.getString("Fax"),
-                    rs.getString("Alamat"),
-                };
-                table.addRow(data);
-                System.out.println("hasil cari: " + Arrays.toString(data));
-            }
-
-            if (!found) {
-                JOptionPane.showMessageDialog(rootPane,
-                    "Kode Suplier atau Nama Suplier '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
-                System.out.println("Kode Suplier atau Nama Suplier '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
-            }
-        } catch (SQLException error) {
-            JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
-            System.out.println("Database Error: " + error.getMessage());
-        }
+//        String searchInput = InputCari.getText().trim();
+//
+//        if (searchInput.equals("")) {
+//            JOptionPane.showMessageDialog(null, "Masukkan keyword terlebih dahulu!");
+//            InputCari.requestFocus();
+//            return;
+//        }
+//
+//        try {
+//            int row = TabelSuplier.getRowCount();
+//            for (int i = 0; i < row; i++) {
+//                table.removeRow(0);
+//            }
+//
+//            // Koneksi ke database
+//            MysqlClient koneksi = DriverManager.getConnection(
+//                mysqlUrl
+//            );
+//
+//            // Query pencarian
+//            String query = "SELECT * FROM tabelsuplier WHERE KodeSuplier LIKE ? OR NamaSuplier LIKE ?";
+//            PreparedStatement pst = koneksi.prepareStatement(query);
+//            pst.setString(1, "%" + searchInput + "%");
+//            pst.setString(2, "%" + searchInput + "%");
+//
+//            ResultSet rs = pst.executeQuery();
+//
+//            // Cek apakah data ditemukan
+//            boolean found = false;
+//            while (rs.next()) {
+//                found = true;
+//                String[] data = {
+//                    rs.getString("KodeSuplier"),
+//                    rs.getString("NamaSuplier"),
+//                    rs.getString("Kontak"),
+//                    rs.getString("Telpon"),
+//                    rs.getString("Fax"),
+//                    rs.getString("Alamat"),
+//                };
+//                table.addRow(data);
+//                System.out.println("hasil cari: " + Arrays.toString(data));
+//            }
+//
+//            if (!found) {
+//                JOptionPane.showMessageDialog(rootPane,
+//                    "Kode Suplier atau Nama Suplier '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
+//                System.out.println("Kode Suplier atau Nama Suplier '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
+//            }
+//        } catch (SQLException error) {
+//            JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
+//            System.out.println("Database Error: " + error.getMessage());
+//        }
     }//GEN-LAST:event_ButtonCariActionPerformed
 
     private void InputCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InputCariActionPerformed
@@ -398,9 +407,72 @@ public class FormBuku extends javax.swing.JDialog {
 
     private void ButtonSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonSimpanActionPerformed
         // TODO add your handling code here:
-        
+         if (InputKodeBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Kode Buku tidak boleh kosong");
+            InputKodeBuku.requestFocus();
+        } else if (InputJudulBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Judul Buku tidak boleh kosong");
+            InputJudulBuku.requestFocus();
+        } else if (InputPenerbit.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Penerbit tidak boleh kosong");
+            InputPenerbit.requestFocus();
+        } else if (InputPenulis.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Penulis tidak boleh kosong");
+            InputPenulis.requestFocus();
+        } else if (InputJumlahBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Jumlah Buku tidak boleh kosong");
+            InputJumlahBuku.requestFocus();
+        } else if (InputLokasiBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Lokasi Buku tidak boleh kosong");
+            InputLokasiBuku.requestFocus();
+        } else
+        try {
+            String kodeBarang  = InputKodeBuku.getText();
+            String cekQuery = "SELECT COUNT(*) FROM tabel_buku WHERE kode_buku = ?";
+            PreparedStatement cekStmt = connect.prepareStatement(cekQuery);
+            cekStmt.setString(1, InputKodeBuku.getText());
+            ResultSet rs = cekStmt.executeQuery();
+
+            rs.next();
+            int jumlah = rs.getInt(1);
+
+            if (jumlah > 0) {
+                JOptionPane.showMessageDialog(rootPane,
+                    "Kode Barang '" + kodeBarang + "' Sudah ada!\nSilakan gunakan kode lain.",
+                    "Duplikasi Data",
+                    JOptionPane.WARNING_MESSAGE);
+                System.out.println("Kode Barang '" + kodeBarang + "' Sudah ada atau duplikasi ata");
+                return;
+            }
+
+            connect.createStatement().executeUpdate("INSERT INTO tabel_buku VALUES('"
+                    +InputKodeBuku.getText()+"','"
+                    +InputJudulBuku.getText()+"','"
+                    +InputPenerbit.getText()+"','"
+                    +InputPenulis.getText()+"','"
+                    +InputJumlahBuku.getText()+"', '"
+                    +InputLokasiBuku.getText()+"')");
+            JOptionPane.showMessageDialog(rootPane, "Data berhasil disimpan");
+            InputKodeBuku.setText(null);
+            InputJudulBuku.setText(null);
+            InputPenerbit.setText(null);
+            InputPenulis.setText(null);
+            InputJumlahBuku.setText(null);
+            InputLokasiBuku.setText(null);
+            //                InputKodeBarang.requestFocus();
+//            tampil(); //memanggil prosedur dengan nama tampil, prosedur harus dibuat terlebih dahulu
+        } catch (SQLException error) {
+            JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
+            System.out.println("Database Error: " + error.getMessage());
+        }
     }//GEN-LAST:event_ButtonSimpanActionPerformed
 
+//    private void tampil(){
+//        try {
+//            
+//        }
+//    }
+    
     /**
      * @param args the command line arguments
      */
