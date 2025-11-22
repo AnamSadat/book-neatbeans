@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -19,6 +20,7 @@ import javax.swing.JOptionPane;
 public class FormBuku extends javax.swing.JDialog {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormBuku.class.getName());
+    private DefaultTableModel table;
     MysqlClient mysqlClient = new MysqlClient();
     Connection connect = mysqlClient.createConnection();
     
@@ -28,6 +30,11 @@ public class FormBuku extends javax.swing.JDialog {
     public FormBuku(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        setLocationRelativeTo(this);
+        String[] data={"Kode Buku","Judul Buku","Penerbit","Penulis","Jumlah Buku", "Lokasi Buku"};
+        table = new DefaultTableModel(data,0);
+        TabelBuku.setModel(table);
+        tampil();
     }
 
     /**
@@ -57,7 +64,6 @@ public class FormBuku extends javax.swing.JDialog {
         ButtonBatal = new javax.swing.JButton();
         ButtonHapus = new javax.swing.JButton();
         ButtonTutup = new javax.swing.JButton();
-        ButtonRefreshTabel = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         TabelBuku = new javax.swing.JTable();
         ButtonCetak = new javax.swing.JButton();
@@ -103,10 +109,10 @@ public class FormBuku extends javax.swing.JDialog {
         ButtonBatal.addActionListener(this::ButtonBatalActionPerformed);
 
         ButtonHapus.setText("Hapus");
+        ButtonHapus.addActionListener(this::ButtonHapusActionPerformed);
 
         ButtonTutup.setText("Tutup");
-
-        ButtonRefreshTabel.addActionListener(this::ButtonRefreshTabelActionPerformed);
+        ButtonTutup.addActionListener(this::ButtonTutupActionPerformed);
 
         TabelBuku.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -119,6 +125,11 @@ public class FormBuku extends javax.swing.JDialog {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        TabelBuku.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TabelBukuMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(TabelBuku);
 
         ButtonCetak.setText("Cetak");
@@ -138,17 +149,16 @@ public class FormBuku extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(27, 27, 27)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(ButtonRefreshTabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(ButtonSimpan)
                                     .addGap(28, 28, 28)
-                                    .addComponent(ButtonEdit)
-                                    .addGap(26, 26, 26)
-                                    .addComponent(ButtonBatal)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(ButtonHapus)
-                                    .addGap(28, 28, 28)
+                                    .addComponent(ButtonEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(ButtonBatal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(ButtonHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                     .addComponent(ButtonTutup))
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(jLabel7)
@@ -185,7 +195,7 @@ public class FormBuku extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(171, 171, 171)
                         .addComponent(jLabel1)))
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -223,9 +233,7 @@ public class FormBuku extends javax.swing.JDialog {
                     .addComponent(ButtonBatal)
                     .addComponent(ButtonHapus)
                     .addComponent(ButtonTutup))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(ButtonRefreshTabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -233,7 +241,7 @@ public class FormBuku extends javax.swing.JDialog {
                         .addComponent(InputCari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(ButtonCari))
                     .addComponent(ButtonCetak))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -262,53 +270,6 @@ public class FormBuku extends javax.swing.JDialog {
     private void InputLokasiBukuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InputLokasiBukuActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_InputLokasiBukuActionPerformed
-
-    private void ButtonRefreshTabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonRefreshTabelActionPerformed
-        // TODO add your handling code here:
-
-//        try {
-//            // Koneksi ke database
-//            MysqlClient mysql = new MysqlClient();
-//            Connection connect = mysql.createConnection();
-//
-//            // Ambil model tabel yang sudah ada
-//            DefaultTableModel table = (DefaultTableModel) TabelSuplier.getModel();
-//
-//            // Hapus semua baris lama
-//            int row = table.getRowCount();
-//            for (int i = 0; i < row; i++) {
-//                table.removeRow(0);
-//            }
-//
-//            // Ambil semua data dari tabelsuplire
-//            String sql = "SELECT * FROM tabelsuplier";
-//            Statement stmt = koneksi.createStatement();
-//            ResultSet rs = stmt.executeQuery(sql);
-//
-//            // Tambahkan ke JTable
-//            while (rs.next()) {
-//                String[] data = {
-//                    rs.getString("KodeSuplier"),
-//                    rs.getString("NamaSuplier"),
-//                    rs.getString("Kontak"),
-//                    rs.getString("Telpon"),
-//                    rs.getString("Fax"),
-//                    rs.getString("Alamat"),
-//                };
-//                table.addRow(data);
-//            }
-//
-//            // Tutup koneksi
-//            //            koneksi.close();
-//
-//            // Opsional: tampilkan pesan sukses
-//            JOptionPane.showMessageDialog(rootPane, "Tabel berhasil diperbarui!");
-//
-//        } catch (SQLException error) {
-//            JOptionPane.showMessageDialog(rootPane, "Gagal memuat data: " + error.getMessage());
-//            System.out.println("Gagal memuat data: " + error.getMessage());
-//        }
-    }//GEN-LAST:event_ButtonRefreshTabelActionPerformed
 
     private void ButtonCetakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCetakActionPerformed
         // TODO add your handling code here:
@@ -399,10 +360,20 @@ public class FormBuku extends javax.swing.JDialog {
 
     private void ButtonEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditActionPerformed
         // TODO add your handling code here:
+        
     }//GEN-LAST:event_ButtonEditActionPerformed
 
     private void ButtonBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonBatalActionPerformed
         // TODO add your handling code here:
+        InputKodeBuku.setText(null);
+        InputJudulBuku.setText(null);
+        InputPenerbit.setText(null);
+        InputPenulis.setText(null);
+        InputJumlahBuku.setText(null);
+        InputLokasiBuku.setText(null);
+        InputCari.setText(null);
+        InputKodeBuku.requestFocus();
+        tampil();
     }//GEN-LAST:event_ButtonBatalActionPerformed
 
     private void ButtonSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonSimpanActionPerformed
@@ -427,7 +398,7 @@ public class FormBuku extends javax.swing.JDialog {
             InputLokasiBuku.requestFocus();
         } else
         try {
-            String kodeBarang  = InputKodeBuku.getText();
+            String kodeBuku  = InputKodeBuku.getText();
             String cekQuery = "SELECT COUNT(*) FROM tabel_buku WHERE kode_buku = ?";
             PreparedStatement cekStmt = connect.prepareStatement(cekQuery);
             cekStmt.setString(1, InputKodeBuku.getText());
@@ -438,10 +409,10 @@ public class FormBuku extends javax.swing.JDialog {
 
             if (jumlah > 0) {
                 JOptionPane.showMessageDialog(rootPane,
-                    "Kode Barang '" + kodeBarang + "' Sudah ada!\nSilakan gunakan kode lain.",
+                    "Kode Buku '" + kodeBuku + "' Sudah ada!\nSilakan gunakan kode lain.",
                     "Duplikasi Data",
                     JOptionPane.WARNING_MESSAGE);
-                System.out.println("Kode Barang '" + kodeBarang + "' Sudah ada atau duplikasi ata");
+                System.out.println("Kode Barang '" + kodeBuku + "' Sudah ada atau duplikasi ata");
                 return;
             }
 
@@ -459,19 +430,70 @@ public class FormBuku extends javax.swing.JDialog {
             InputPenulis.setText(null);
             InputJumlahBuku.setText(null);
             InputLokasiBuku.setText(null);
-            //                InputKodeBarang.requestFocus();
-//            tampil(); //memanggil prosedur dengan nama tampil, prosedur harus dibuat terlebih dahulu
+            InputKodeBuku.requestFocus();
+            tampil();
         } catch (SQLException error) {
             JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
             System.out.println("Database Error: " + error.getMessage());
         }
     }//GEN-LAST:event_ButtonSimpanActionPerformed
 
-//    private void tampil(){
-//        try {
-//            
-//        }
-//    }
+    private void ButtonTutupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonTutupActionPerformed
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_ButtonTutupActionPerformed
+
+    private void ButtonHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonHapusActionPerformed
+        // TODO add your handling code here:
+        try {
+            String kodeBuku = InputKodeBuku.getText();
+            String query = "DELETE FROM tabel_buku WHERE kode_buku = '" + kodeBuku + "'";
+            int result = connect.createStatement().executeUpdate(query);
+            JOptionPane.showMessageDialog(rootPane, "Data '"+ kodeBuku + "' berhasil dihapus");
+            System.out.println("Data '"+ kodeBuku + "' berhasil dihapus");
+            tampil();
+        }catch(SQLException error){
+            JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
+            System.out.println("Database Error: " + error.getMessage());
+        }
+    }//GEN-LAST:event_ButtonHapusActionPerformed
+
+    private void TabelBukuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TabelBukuMouseClicked
+        // TODO add your handling code here:
+        int selectedRow = TabelBuku.getSelectedRow();
+        DefaultTableModel model = (DefaultTableModel) TabelBuku.getModel();
+
+        // Ambil nilai dari tabel
+        String kodeBuku = model.getValueAt(selectedRow, 0).toString();
+        String judulBuku = model.getValueAt(selectedRow, 1).toString();
+        String penerbit = model.getValueAt(selectedRow, 2).toString();
+        String penulis = model.getValueAt(selectedRow, 3).toString();
+        String jumlahBuku = model.getValueAt(selectedRow, 4).toString();
+        String lokasiBuku = model.getValueAt(selectedRow, 5).toString();
+
+        // Masukkan ke input field
+        InputKodeBuku.setText(kodeBuku);
+        InputJudulBuku.setText(judulBuku);
+        InputPenerbit.setText(penerbit);
+        InputPenulis.setText(penulis);
+        InputJumlahBuku.setText(jumlahBuku);
+        InputLokasiBuku.setText(lokasiBuku);
+    }//GEN-LAST:event_TabelBukuMouseClicked
+
+    private void tampil(){
+        try {
+            table.setRowCount(0);
+            ResultSet result = connect.createStatement().executeQuery("SELECT * FROM tabel_buku");
+            while(result.next()){
+                String[] data = {result.getString(1),result.getString(2),
+                    result.getString(3),result.getString(4),result.getString(5),result.getString(6)};
+                table.addRow(data);
+            }
+        }catch(SQLException error){
+            System.out.println("Internal Server Error: " + error.getMessage());
+            JOptionPane.showMessageDialog(rootPane, error);
+        }
+    }
     
     /**
      * @param args the command line arguments
@@ -516,7 +538,6 @@ public class FormBuku extends javax.swing.JDialog {
     private javax.swing.JButton ButtonCetak;
     private javax.swing.JButton ButtonEdit;
     private javax.swing.JButton ButtonHapus;
-    private javax.swing.JButton ButtonRefreshTabel;
     private javax.swing.JButton ButtonSimpan;
     private javax.swing.JButton ButtonTutup;
     private javax.swing.JTextField InputCari;
