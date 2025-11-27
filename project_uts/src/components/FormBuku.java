@@ -6,12 +6,23 @@ package components;
 
 import java.sql.Connection;
 import config.MysqlClient;
+import java.io.File;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.swing.JRViewer;
+import javax.swing.JFrame;
 
 /**
  *
@@ -23,6 +34,10 @@ public class FormBuku extends javax.swing.JDialog {
     private DefaultTableModel table;
     MysqlClient mysqlClient = new MysqlClient();
     Connection connect = mysqlClient.createConnection();
+    JasperReport JasReport;
+    JasperPrint JasPrint;
+    HashMap parameter = new HashMap();
+    JasperDesign JasDesign;
     
     /**
      * Creates new form FormBuku
@@ -273,84 +288,79 @@ public class FormBuku extends javax.swing.JDialog {
 
     private void ButtonCetakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCetakActionPerformed
         // TODO add your handling code here:
-//        try {
-//            File report = new File("./src/components/suplier/reportSuplier.jrxml");
-//            JasperDesign JasDesign = JRXmlLoader.load(report);
-//            parameter.clear();
-//            JasReport = JasperCompileManager.compileReport(JasDesign);
-//            JasPrint = JasperFillManager.fillReport(JasReport, parameter, con);
-//            // Buat instance JasperViewer
-//            JRViewer viewer = new JRViewer(JasPrint);
-//
-//            // Buat JFrame baru sebagai container
-//            JFrame previewFrame = new JFrame("Preview Laporan");
-//            previewFrame.getContentPane().add(viewer);
-//            previewFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // full screen
-//            previewFrame.setAlwaysOnTop(true); // pastikan di atas
-//            previewFrame.setLocationRelativeTo(null); // tengah layar
-//            previewFrame.setVisible(true);
-//            previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//
-//        }catch(Exception error) {
-//            JOptionPane.showMessageDialog(null,"Gagal print: " + error.getMessage());
-//            System.out.println("Gagal print: " + error.getMessage());
-//        }
+        try {
+            File report = new File("./src/components/ReportBook.jrxml");
+            JasperDesign JasDesign = JRXmlLoader.load(report);
+            parameter.clear();
+            JasReport = JasperCompileManager.compileReport(JasDesign);
+            JasPrint = JasperFillManager.fillReport(JasReport, parameter, connect);
+            // Buat instance JasperViewer
+            JRViewer viewer = new JRViewer(JasPrint);
+
+            // Buat JFrame baru sebagai container
+            JFrame previewFrame = new JFrame("Preview Laporan");
+            previewFrame.getContentPane().add(viewer);
+            previewFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); // full screen
+            previewFrame.setAlwaysOnTop(true); // pastikan di atas
+            previewFrame.setLocationRelativeTo(null); // tengah layar
+            previewFrame.setVisible(true);
+            previewFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        }catch(Exception error) {
+            JOptionPane.showMessageDialog(null,"Gagal print: " + error.getMessage());
+            System.out.println("Gagal print: " + error.getMessage());
+        }
     }//GEN-LAST:event_ButtonCetakActionPerformed
 
     private void ButtonCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCariActionPerformed
         // TODO add your handling code here:
-//        String searchInput = InputCari.getText().trim();
-//
-//        if (searchInput.equals("")) {
-//            JOptionPane.showMessageDialog(null, "Masukkan keyword terlebih dahulu!");
-//            InputCari.requestFocus();
-//            return;
-//        }
-//
-//        try {
-//            int row = TabelSuplier.getRowCount();
-//            for (int i = 0; i < row; i++) {
-//                table.removeRow(0);
-//            }
-//
-//            // Koneksi ke database
-//            MysqlClient koneksi = DriverManager.getConnection(
-//                mysqlUrl
-//            );
-//
-//            // Query pencarian
-//            String query = "SELECT * FROM tabelsuplier WHERE KodeSuplier LIKE ? OR NamaSuplier LIKE ?";
-//            PreparedStatement pst = koneksi.prepareStatement(query);
-//            pst.setString(1, "%" + searchInput + "%");
-//            pst.setString(2, "%" + searchInput + "%");
-//
-//            ResultSet rs = pst.executeQuery();
-//
-//            // Cek apakah data ditemukan
-//            boolean found = false;
-//            while (rs.next()) {
-//                found = true;
-//                String[] data = {
-//                    rs.getString("KodeSuplier"),
-//                    rs.getString("NamaSuplier"),
-//                    rs.getString("Kontak"),
-//                    rs.getString("Telpon"),
-//                    rs.getString("Fax"),
-//                    rs.getString("Alamat"),
-//                };
-//                table.addRow(data);
-//                System.out.println("hasil cari: " + Arrays.toString(data));
-//            }
-//
-//            if (!found) {
-//                JOptionPane.showMessageDialog(rootPane,
-//                    "Kode Suplier atau Nama Suplier '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
-//                System.out.println("Kode Suplier atau Nama Suplier '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
-//            }
-//        } catch (SQLException error) {
-//            JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
-//            System.out.println("Database Error: " + error.getMessage());
-//        }
+        String searchInput = InputCari.getText().trim();
+
+        if (searchInput.equals("")) {
+            JOptionPane.showMessageDialog(null, "Masukkan keyword terlebih dahulu!");
+            InputCari.requestFocus();
+            return;
+        }
+
+        try {
+            int row = TabelBuku.getRowCount();
+            for (int i = 0; i < row; i++) {
+                table.removeRow(0);
+            }
+
+            // Query pencarian
+            String query = "SELECT * FROM tabel_buku WHERE kode_buku LIKE ? OR judul_buku LIKE ?";
+            PreparedStatement pst = connect.prepareStatement(query);
+            pst.setString(1, "%" + searchInput + "%");
+            pst.setString(2, "%" + searchInput + "%");
+
+            ResultSet rs = pst.executeQuery();
+
+            // Cek apakah data ditemukan
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
+                String[] data = {
+                    rs.getString("kode_buku"),
+                    rs.getString("judul_buku"),
+                    rs.getString("penerbit"),
+                    rs.getString("penulis"),
+                    rs.getString("jumlah_buku"),
+                    rs.getString("lokasi_buku"),
+                };
+                table.addRow(data);
+                System.out.println("hasil cari: " + Arrays.toString(data));
+            }
+
+            if (!found) {
+                JOptionPane.showMessageDialog(rootPane,
+                    "Kode Buku atau Judul Buku '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
+                System.out.println("Kode Buku atau Judul Buku '" + searchInput + "' tidak ditemukan!\nSilahkan refresh untuk melihat tabel!");
+            }
+        } catch (SQLException error) {
+            JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
+            System.out.println("Database Error: " + error.getMessage());
+        }
     }//GEN-LAST:event_ButtonCariActionPerformed
 
     private void InputCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_InputCariActionPerformed
@@ -360,11 +370,53 @@ public class FormBuku extends javax.swing.JDialog {
 
     private void ButtonEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonEditActionPerformed
         // TODO add your handling code here:
-        
+        InputKodeBuku.setEnabled(true);
+        if (InputKodeBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Kode Buku tidak boleh kosong");
+            InputKodeBuku.requestFocus();
+        } else if (InputJudulBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Judul Buku tidak boleh kosong");
+            InputJudulBuku.requestFocus();
+        } else if (InputPenerbit.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Penerbit tidak boleh kosong");
+            InputPenerbit.requestFocus();
+        } else if (InputPenulis.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Penulis tidak boleh kosong");
+            InputPenulis.requestFocus();
+        } else if (InputJumlahBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Jumlah Buku tidak boleh kosong");
+            InputJumlahBuku.requestFocus();
+        } else if (InputLokasiBuku.getText().equals("")){
+            JOptionPane.showMessageDialog(null,"Lokasi Buku tidak boleh kosong");
+            InputLokasiBuku.requestFocus();
+        } else
+            try {
+                String kodeBarang  = InputKodeBuku.getText();
+                String query = "UPDATE tabel_buku SET judul_buku = '" +InputJudulBuku.getText()+"',"
+                        + " penerbit = '" +InputPenerbit.getText()+"', "
+                        + " penulis = ' " +InputPenulis.getText()+"',  "
+                        + " jumlah_buku = '" +InputJumlahBuku.getText()+"', "
+                        + " lokasi_buku = '" +InputLokasiBuku.getText()+"' "
+                        + "WHERE kode_buku = '" +kodeBarang+"'";
+                int result = connect.createStatement().executeUpdate(query);
+                JOptionPane.showMessageDialog(rootPane, "Data berhasil disimpan");
+                InputKodeBuku.setText(null);
+                InputJudulBuku.setText(null);
+                InputPenerbit.setText(null);
+                InputPenulis.setText(null);
+                InputJumlahBuku.setText(null);
+                InputLokasiBuku.setText(null);
+//                InputKodeBarang.requestFocus();
+                tampil(); //memanggil prosedur dengan nama tampil, prosedur harus dibuat terlebih dahulu
+            } catch (SQLException error) {
+                JOptionPane.showMessageDialog(rootPane, "Database Error: " + error.getMessage());
+                System.out.println("Database Error: " + error.getMessage());
+            }
     }//GEN-LAST:event_ButtonEditActionPerformed
 
     private void ButtonBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonBatalActionPerformed
         // TODO add your handling code here:
+        InputKodeBuku.setEnabled(true);
         InputKodeBuku.setText(null);
         InputJudulBuku.setText(null);
         InputPenerbit.setText(null);
@@ -378,6 +430,7 @@ public class FormBuku extends javax.swing.JDialog {
 
     private void ButtonSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonSimpanActionPerformed
         // TODO add your handling code here:
+        InputKodeBuku.setEnabled(true);
          if (InputKodeBuku.getText().equals("")){
             JOptionPane.showMessageDialog(null,"Kode Buku tidak boleh kosong");
             InputKodeBuku.requestFocus();
@@ -445,6 +498,7 @@ public class FormBuku extends javax.swing.JDialog {
 
     private void ButtonHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonHapusActionPerformed
         // TODO add your handling code here:
+        InputKodeBuku.setEnabled(true);
         try {
             String kodeBuku = InputKodeBuku.getText();
             String query = "DELETE FROM tabel_buku WHERE kode_buku = '" + kodeBuku + "'";
@@ -472,6 +526,7 @@ public class FormBuku extends javax.swing.JDialog {
         String lokasiBuku = model.getValueAt(selectedRow, 5).toString();
 
         // Masukkan ke input field
+        InputKodeBuku.setEnabled(false);
         InputKodeBuku.setText(kodeBuku);
         InputJudulBuku.setText(judulBuku);
         InputPenerbit.setText(penerbit);
