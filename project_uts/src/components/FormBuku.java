@@ -23,6 +23,10 @@ import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import net.sf.jasperreports.swing.JRViewer;
 import javax.swing.JFrame;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
 
 /**
  *
@@ -84,6 +88,7 @@ public class FormBuku extends javax.swing.JDialog {
         ButtonCetak = new javax.swing.JButton();
         ButtonCari = new javax.swing.JButton();
         InputCari = new javax.swing.JTextField();
+        ButtonExcel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -155,6 +160,9 @@ public class FormBuku extends javax.swing.JDialog {
 
         InputCari.addActionListener(this::InputCariActionPerformed);
 
+        ButtonExcel.setText("Export to Excel");
+        ButtonExcel.addActionListener(this::ButtonExcelActionPerformed);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -163,7 +171,7 @@ public class FormBuku extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(27, 27, 27)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(ButtonSimpan)
@@ -199,14 +207,14 @@ public class FormBuku extends javax.swing.JDialog {
                                     .addComponent(jLabel2)
                                     .addGap(48, 48, 48)
                                     .addComponent(InputKodeBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(ButtonCari, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(InputCari)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(ButtonCetak, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 497, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(ButtonCari, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(InputCari)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ButtonCetak, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(ButtonExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(171, 171, 171)
                         .addComponent(jLabel1)))
@@ -256,7 +264,9 @@ public class FormBuku extends javax.swing.JDialog {
                         .addComponent(InputCari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(ButtonCari))
                     .addComponent(ButtonCetak))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(ButtonExcel)
+                .addContainerGap(11, Short.MAX_VALUE))
         );
 
         pack();
@@ -289,7 +299,7 @@ public class FormBuku extends javax.swing.JDialog {
     private void ButtonCetakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCetakActionPerformed
         // TODO add your handling code here:
         try {
-            File report = new File("./src/components/ReportBook.jrxml");
+            File report = new File("/components/ReportBook.jrxml");
             JasperDesign JasDesign = JRXmlLoader.load(report);
             parameter.clear();
             JasReport = JasperCompileManager.compileReport(JasDesign);
@@ -535,6 +545,44 @@ public class FormBuku extends javax.swing.JDialog {
         InputLokasiBuku.setText(lokasiBuku);
     }//GEN-LAST:event_TabelBukuMouseClicked
 
+    private void ButtonExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonExcelActionPerformed
+        // TODO add your handling code here:
+        try {
+            WritableWorkbook w = Workbook.createWorkbook(new File("C:/Users/Hp/Documents/java/book-neatbeans/project_uts/DataBook.xls"));
+            WritableSheet s = w.createSheet("Book", 0);    
+            
+            // Menambahkan Kolom Header
+            for (int kolom = 0; kolom < table.getColumnCount(); kolom++) {
+                s.addCell(new Label(kolom, 0, table.getColumnName(kolom)));
+            }
+            
+            // Dari Modul
+//            for (int baris = 1; baris < table.getRowCount(); baris++) {
+//                for (int kolom = 0; kolom < table.getColumnCount(); kolom++) {
+//                    String data = table.getValueAt(baris, kolom).toString();
+//                    s.addCell(new Label(kolom, baris, data));
+//                }
+//            }
+
+            // Jika Menggunakan Kolom Header gunakan fungsi ini
+            for (int baris = 0; baris < table.getRowCount(); baris++) {
+                for (int kolom = 0; kolom < table.getColumnCount(); kolom++) {
+                    Object val = table.getValueAt(baris, kolom);
+                    String data = (val == null) ? "" : val.toString();
+                   
+                    s.addCell(new Label(kolom, baris + 1, data)); // <-- baris+1
+                }    
+            }
+
+            w.write();
+            w.close();
+            String message = "Data berhasil diekspor ke Excel";
+            JOptionPane.showMessageDialog(null, message, "Berhasil", JOptionPane.INFORMATION_MESSAGE);
+        } catch(Exception aoEx) {
+            System.err.print("Terjadi err");
+        }
+    }//GEN-LAST:event_ButtonExcelActionPerformed
+
     private void tampil(){
         try {
             table.setRowCount(0);
@@ -592,6 +640,7 @@ public class FormBuku extends javax.swing.JDialog {
     private javax.swing.JButton ButtonCari;
     private javax.swing.JButton ButtonCetak;
     private javax.swing.JButton ButtonEdit;
+    private javax.swing.JButton ButtonExcel;
     private javax.swing.JButton ButtonHapus;
     private javax.swing.JButton ButtonSimpan;
     private javax.swing.JButton ButtonTutup;
