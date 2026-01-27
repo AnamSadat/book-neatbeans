@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -23,6 +24,9 @@ import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import net.sf.jasperreports.swing.JRViewer;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import jxl.Cell;
+import jxl.Sheet;
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
@@ -88,7 +92,8 @@ public class FormBuku extends javax.swing.JDialog {
         ButtonCetak = new javax.swing.JButton();
         ButtonCari = new javax.swing.JButton();
         InputCari = new javax.swing.JTextField();
-        ButtonExcel = new javax.swing.JButton();
+        ButtonExportExcel = new javax.swing.JButton();
+        ButtonImportExcel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -160,8 +165,11 @@ public class FormBuku extends javax.swing.JDialog {
 
         InputCari.addActionListener(this::InputCariActionPerformed);
 
-        ButtonExcel.setText("Export to Excel");
-        ButtonExcel.addActionListener(this::ButtonExcelActionPerformed);
+        ButtonExportExcel.setText("Export to Excel");
+        ButtonExportExcel.addActionListener(this::ButtonExportExcelActionPerformed);
+
+        ButtonImportExcel.setText("Import to Excel");
+        ButtonImportExcel.addActionListener(this::ButtonImportExcelActionPerformed);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -172,41 +180,40 @@ public class FormBuku extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(27, 27, 27)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(ButtonSimpan)
-                                    .addGap(28, 28, 28)
-                                    .addComponent(ButtonEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(ButtonBatal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(ButtonHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(ButtonTutup))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel7)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(InputLokasiBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel6)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(InputJumlahBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(InputPenulis, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(InputPenerbit, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(jLabel3)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(InputJudulBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addGap(48, 48, 48)
-                                    .addComponent(InputKodeBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(ButtonSimpan)
+                                .addGap(28, 28, 28)
+                                .addComponent(ButtonEdit, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(ButtonBatal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(ButtonHapus, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(ButtonTutup))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(InputLokasiBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(InputJumlahBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(InputPenulis, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(InputPenerbit, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(InputJudulBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(48, 48, 48)
+                                .addComponent(InputKodeBuku, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(ButtonCari, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -214,7 +221,10 @@ public class FormBuku extends javax.swing.JDialog {
                                 .addComponent(InputCari)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(ButtonCetak, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(ButtonExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(ButtonImportExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(ButtonExportExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(171, 171, 171)
                         .addComponent(jLabel1)))
@@ -265,7 +275,9 @@ public class FormBuku extends javax.swing.JDialog {
                         .addComponent(ButtonCari))
                     .addComponent(ButtonCetak))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(ButtonExcel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ButtonExportExcel)
+                    .addComponent(ButtonImportExcel))
                 .addContainerGap(11, Short.MAX_VALUE))
         );
 
@@ -545,10 +557,10 @@ public class FormBuku extends javax.swing.JDialog {
         InputLokasiBuku.setText(lokasiBuku);
     }//GEN-LAST:event_TabelBukuMouseClicked
 
-    private void ButtonExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonExcelActionPerformed
+    private void ButtonExportExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonExportExcelActionPerformed
         // TODO add your handling code here:
         try {
-            WritableWorkbook w = Workbook.createWorkbook(new File("C:/Users/Hp/Documents/java/book-neatbeans/project_uts/DataBook.xls"));
+            WritableWorkbook w = Workbook.createWorkbook(new File("../DataBook.xls"));
             WritableSheet s = w.createSheet("Book", 0);    
             
             // Menambahkan Kolom Header
@@ -581,7 +593,146 @@ public class FormBuku extends javax.swing.JDialog {
         } catch(Exception aoEx) {
             System.err.print("Terjadi err");
         }
-    }//GEN-LAST:event_ButtonExcelActionPerformed
+    }//GEN-LAST:event_ButtonExportExcelActionPerformed
+
+    private void ButtonImportExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonImportExcelActionPerformed
+        // TODO add your handling code here:
+        PreparedStatement cekStmt = null;
+        PreparedStatement insertStmt = null;
+        PreparedStatement updateStmt = null;
+        ResultSet rs = null;
+
+        try {
+            JFileChooser fc = new JFileChooser();
+            fc.setDialogTitle("Pilih file Excel");
+            fc.setFileFilter(new FileNameExtensionFilter("Excel 97-2003 (*.xls)", "xls"));
+
+            int result = fc.showOpenDialog(this);
+            if (result != JFileChooser.APPROVE_OPTION) return;
+
+            File file = fc.getSelectedFile();
+
+            Workbook wb = Workbook.getWorkbook(file);
+            Sheet sheet = wb.getSheet(0);
+
+            int rows = sheet.getRows();
+            int cols = sheet.getColumns();
+
+            if (rows <= 1) { // baris 0 header, minimal butuh 1 data
+                JOptionPane.showMessageDialog(null, "File Excel kosong / tidak ada data.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                wb.close();
+                return;
+            }
+
+            if (cols < 6) {
+                JOptionPane.showMessageDialog(null, "Kolom Excel kurang! Harus 6 kolom.", "Error", JOptionPane.ERROR_MESSAGE);
+                wb.close();
+                return;
+            }
+
+            // Transaction biar aman (sekali commit)
+            connect.setAutoCommit(false);
+
+            String cekQuery = "SELECT COUNT(*) FROM tabel_buku WHERE kode_buku = ?";
+            String insertQuery = "INSERT INTO tabel_buku (kode_buku, judul_buku, penerbit, penulis, jumlah_buku, lokasi_buku) " +
+                                 "VALUES (?, ?, ?, ?, ?, ?)";
+            String updateQuery = "UPDATE tabel_buku SET judul_buku=?, penerbit=?, penulis=?, jumlah_buku=?, lokasi_buku=? " +
+                                 "WHERE kode_buku=?";
+
+            cekStmt = connect.prepareStatement(cekQuery);
+            insertStmt = connect.prepareStatement(insertQuery);
+            updateStmt = connect.prepareStatement(updateQuery);
+
+            int inserted = 0;
+            int updated = 0;
+
+            // mulai dari r=1 (karena r=0 header)
+            for (int r = 1; r < rows; r++) {
+                String kode     = sheet.getCell(0, r).getContents().trim();
+                String judul    = sheet.getCell(1, r).getContents().trim();
+                String penerbit = sheet.getCell(2, r).getContents().trim();
+                String penulis  = sheet.getCell(3, r).getContents().trim();
+                String jumlahS  = sheet.getCell(4, r).getContents().trim();
+                String lokasi   = sheet.getCell(5, r).getContents().trim();
+
+                // skip baris yang benar-benar kosong
+                if (kode.isEmpty() && judul.isEmpty() && penerbit.isEmpty() && penulis.isEmpty() && jumlahS.isEmpty() && lokasi.isEmpty()) {
+                    continue;
+                }
+
+                // kode kosong biasanya tidak valid
+                if (kode.isEmpty()) {
+                    continue; // atau bisa JOptionPane kalau mau berhenti
+                }
+
+                int jumlah = 0;
+                if (!jumlahS.isEmpty()) {
+                    try { jumlah = Integer.parseInt(jumlahS); }
+                    catch (NumberFormatException e) { jumlah = 0; }
+                }
+
+                // CEK apakah kode sudah ada
+                cekStmt.setString(1, kode);
+                rs = cekStmt.executeQuery();
+
+                int count = 0;
+                if (rs.next()) count = rs.getInt(1);
+                rs.close();
+                rs = null;
+
+                if (count > 0) {
+                    // UPDATE
+                    updateStmt.setString(1, judul);
+                    updateStmt.setString(2, penerbit);
+                    updateStmt.setString(3, penulis);
+                    updateStmt.setInt(4, jumlah);
+                    updateStmt.setString(5, lokasi);
+                    updateStmt.setString(6, kode);
+                    updateStmt.executeUpdate();
+                    updated++;
+                } else {
+                    // INSERT
+                    insertStmt.setString(1, kode);
+                    insertStmt.setString(2, judul);
+                    insertStmt.setString(3, penerbit);
+                    insertStmt.setString(4, penulis);
+                    insertStmt.setInt(5, jumlah);
+                    insertStmt.setString(6, lokasi);
+                    insertStmt.executeUpdate();
+                    inserted++;
+                }
+            }
+
+            connect.commit();
+            connect.setAutoCommit(true);
+
+            wb.close();
+
+            JOptionPane.showMessageDialog(
+                null,
+                "Import selesai.\nInsert: " + inserted + "\nUpdate: " + updated,
+                "Berhasil",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+
+            // Refresh tabel dari DB
+            tampil();
+
+        } catch (Exception e) {
+            try { connect.rollback(); } catch (Exception ex) {}
+            try { connect.setAutoCommit(true); } catch (Exception ex) {}
+
+            JOptionPane.showMessageDialog(null, "Error import: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("Import error: " + e);
+
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception e) {}
+            try { if (cekStmt != null) cekStmt.close(); } catch (Exception e) {}
+            try { if (insertStmt != null) insertStmt.close(); } catch (Exception e) {}
+            try { if (updateStmt != null) updateStmt.close(); } catch (Exception e) {}
+        }
+
+    }//GEN-LAST:event_ButtonImportExcelActionPerformed
 
     private void tampil(){
         try {
@@ -640,8 +791,9 @@ public class FormBuku extends javax.swing.JDialog {
     private javax.swing.JButton ButtonCari;
     private javax.swing.JButton ButtonCetak;
     private javax.swing.JButton ButtonEdit;
-    private javax.swing.JButton ButtonExcel;
+    private javax.swing.JButton ButtonExportExcel;
     private javax.swing.JButton ButtonHapus;
+    private javax.swing.JButton ButtonImportExcel;
     private javax.swing.JButton ButtonSimpan;
     private javax.swing.JButton ButtonTutup;
     private javax.swing.JTextField InputCari;
