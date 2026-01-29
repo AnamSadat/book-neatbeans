@@ -311,7 +311,7 @@ public class FormBuku extends javax.swing.JDialog {
     private void ButtonCetakActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonCetakActionPerformed
         // TODO add your handling code here:
         try {
-            File report = new File("/components/ReportBook.jrxml");
+            File report = new File("./src/components/ReportBook.jrxml");
             JasperDesign JasDesign = JRXmlLoader.load(report);
             parameter.clear();
             JasReport = JasperCompileManager.compileReport(JasDesign);
@@ -560,7 +560,7 @@ public class FormBuku extends javax.swing.JDialog {
     private void ButtonExportExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonExportExcelActionPerformed
         // TODO add your handling code here:
         try {
-            WritableWorkbook w = Workbook.createWorkbook(new File("../DataBook.xls"));
+            WritableWorkbook w = Workbook.createWorkbook(new File("./DataBook.xls"));
             WritableSheet s = w.createSheet("Book", 0);    
             
             // Menambahkan Kolom Header
